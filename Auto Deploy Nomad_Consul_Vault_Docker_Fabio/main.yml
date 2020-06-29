@@ -1,0 +1,7 @@
+---
+- import_playbook: tasks/Selinux_FW_Disable.yml
+- import_playbook: tasks/install_consul.yml
+- import_playbook: tasks/install_nomad.yml
+- import_playbook: tasks/install_vault.yml
+- import_playbook: tasks/install_fabio.yml
+- import_playbook: tasks/install_docker.yml

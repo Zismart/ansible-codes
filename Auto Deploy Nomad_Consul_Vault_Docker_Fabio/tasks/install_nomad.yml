@@ -1,0 +1,83 @@
+---
+- hosts: all
+  become: true
+  gather_facts: No
+  vars_files:
+    - ./vars.yml
+  tasks:
+    - name: Extract nomad to /usr/local/bin
+      unarchive:
+        src: "{{ local_dir }}source_zip/nomad/{{ nomad_version }}"
+        dest: "{{ installation_dir }}"
+        owner: root
+        group: root
+        mode: 0777
+        
+    - name: Enable autocompletion
+      shell: "{{ installation_dir }}nomad -autocomplete-install"
+        
+    - name: Enable autocompletion 2
+      shell: complete -C {{ installation_dir }}nomad nomad
+      args:
+        executable: /usr/bin/bash
+      
+    - name: Creates config directory for Nomad
+      file:
+        path: "{{ nomad_config_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+        recurse: yes
+        
+    - name: Creates data directory for Nomad
+      file:
+        path: "{{ nomad_data_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0700
+        recurse: yes
+    
+    - name: Copy Template Nomad Service
+      template:
+        src: "{{ local_dir }}service/nomad/nomad.service.j2"
+        dest: "{{ service_dir }}nomad.service"
+        owner: root
+        group: root
+        mode: 0777
+        backup: yes
+    
+    - name: Copy Template Nomad Client Config
+      template:
+        src: "{{ local_dir }}conf/nomad/client.hcl.j2"
+        dest: "{{ nomad_config_dir }}client.hcl"
+        owner: root
+        group: root
+        mode: 0644
+    
+    - name: Copy Template Nomad Config
+      template:
+        src: "{{ local_dir }}conf/nomad/nomad.hcl.j2"
+        dest: "{{ nomad_config_dir }}nomad.hcl"
+        owner: root
+        group: root
+        mode: 0644
+    
+    - name: Copy Template Nomad Server Config
+      template:
+        src: "{{ local_dir }}conf/nomad/server.hcl.j2"
+        dest: "{{ nomad_config_dir }}server.hcl"
+        owner: root
+        group: root
+        mode: 0644
+     
+    - name: Daemon Reload
+      systemd:
+         daemon_reload: yes    
+        
+    - name: Start Nomad Service and Enable
+      service:
+         name: nomad
+         enabled: true
+         state: started

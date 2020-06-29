@@ -1,0 +1,17 @@
+disable_cache = {{ vault_disable_cache | lower }}
+disable_mlock = {{ vault_disable_mlock | lower }}
+ui = {{ vault_ui | lower }}
+listener "tcp" {
+   address          = "{{ listener_tcp_addr }}:8200"
+   tls_disable      = 1
+}
+storage "file" {
+   path  = "{{ vault_data_dir }}"
+ }
+api_addr         = "http://{{ api_addr }}:8200"
+max_lease_ttl         = "{{ vault_max_lease_ttl }}"
+default_lease_ttl    = "{{ vault_default_lease_ttl }}"
+cluster_name         = "{{ vault_cluster_name }}"
+raw_storage_endpoint     = {{ vault_raw_storage_endpoint | lower }}
+disable_sealwrap     = {{ vault_disable_sealwrap | lower }}
+disable_printable_check = {{ vault_disable_printable_check | lower }}

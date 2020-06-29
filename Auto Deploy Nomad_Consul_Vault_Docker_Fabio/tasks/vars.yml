@@ -1,0 +1,143 @@
+---
+#Soft Version
+nomad_version: 'nomad_0.10.0_linux_amd64.zip'
+vault_version: 'vault_1.4.2_linux_amd64.zip'
+fabio_version: 'fabio-1.5.11-go1.11.5-linux_amd64.zip'
+consul_version: 'consul_1.8.0_linux_amd64.zip'
+
+#Global Directory
+installation_dir: /usr/local/bin/
+local_dir: /etc/ansible/templates/
+service_dir: /etc/systemd/system/
+
+
+########<<<NOMAD>>>########
+#Nomad Directories
+nomad_data_dir: /opt/nomad/
+nomad_config_dir: /etc/nomad.d/
+#Nomad Configurations
+nomad_server_enabled: true
+nomad_client_enabled: true
+nomad_bootstrap_expect: 1
+nomad_datacenter: dc1
+#Nomad Service
+nomad_ExecReload: /bin/kill -HUP $MAINPID
+nomad_service_execstart: /usr/local/bin/nomad agent -config 
+nomad_KillMode: process
+nomad_KillSignal: SIGINT
+nomad_LimitNOFILE: infinity
+nomad_LimitNPROC: infinity
+nomad_restart_sec: 2
+nomad_StartLimitBurst: 3
+nomad_Restart: on-failure
+nomad_TasksMax: infinity
+
+########<<<FABIO>>>########
+#Fabio Directories
+fabio_opt_dir: /opt/fabio/bin/
+fabio_conf_dir: /opt/fabio/
+#Fabio Configurations
+fabio_proxy_addr: 9999
+fabio_proxyheader_tls: Strict-Transport-Security
+fabio_proxy_header_tls_value: max-age=63072000; includeSubDomains
+fabio_ui_addr: 10.234.190.61:9998
+fabio_ui_access: ro
+fabio_runtime_gogc: 800
+fabio_log_access_target: stdout
+fabio_log_access_level: INFO
+fabio_registry_consul_addr: 10.234.190.61:8500
+fabio_proxy_maxconn: 20000
+#Fabio Service
+fabio_LimitMEMLOCK: infinity
+fabio_LimitNOFILE: 65535
+fabio_Type: simple
+fabio_WorkingDirectory: /opt/fabio
+fabio_Restart: always
+fabio_ExecStart: /opt/fabio/bin/fabio -cfg fabio.properties
+fabio_StandardOutput: syslog
+fabio_StandardError: syslog
+fabio_SyslogIdentifier: fabio
+fabio_PrivateDevices: yes
+fabio_PrivateTmp: yes
+fabio_ProtectSystem: full
+fabio_ProtectHome: yes
+fabio_AmbientCapabilities: CAP_NET_BIND_SERVICE
+fabio_RestrictAddressFamilies: AF_INET AF_INET6 AF_UNIX AF_NETLINK
+fabio_User: fabio
+fabio_Group: root
+
+
+########<<<VAULT>>>########
+#Vault Directories
+vault_data_dir: /var/lib/vault/data/
+vault_config_dir: /etc/vault/
+vault_ip: 10.234.190.61
+listener_tcp_addr: 0.0.0.0
+api_addr: 0.0.0.0
+#Vault Configurations
+vault_disable_cache: true
+vault_disable_mlock: true
+vault_ui: true
+vault_max_lease_ttl: 10h
+vault_default_lease_ttl: 10h
+vault_cluster_name: vault
+vault_raw_storage_endpoint: true
+vault_disable_sealwrap: true
+vault_disable_printable_check: true
+#Vault Service
+vault_User: root
+vault_Group: root
+vault_ProtectSystem: full
+vault_ProtectHome: read-only
+vault_PrivateTmp: yes
+vault_PrivateDevices: yes
+vault_SecureBits: keep-caps
+vault_AmbientCapabilities: CAP_IPC_LOCK
+vault_NoNewPrivileges: yes
+vault_ExecStart: /usr/local/bin/vault server -config=
+vault_ExecReload: /bin/kill --signal HUP 
+vault_KillMode: process
+vault_KillSignal: SIGINT
+vault_Restart: on-failure
+vault_RestartSec: 5
+vault_TimeoutStopSec: 30
+vault_StartLimitBurst: 3
+vault_LimitNOFILE: 65536
+
+
+
+
+########<<<CONSUL>>>########
+#Consul Directory
+consul_data_dir: /var/lib/consul/
+consul_config_dir: /etc/consul.d/
+#Consul Configurations
+consul_advertise_addr: 10.234.190.61
+consul_bind_addr: 10.234.190.61
+consul_bootstrap_expect: 1
+consul_client_addr: 0.0.0.0
+consul_datacenter: dc1
+consul_domain: consul
+consul_enable_script_checks: true
+consul_retry_join: 10.234.190.61","10.234.190.61
+consul_enable_truncate: true
+consul_only_passing: true
+consul_enable_syslog: true
+consul_leave_on_terminate: true
+consul_log_level: INFO
+consul_rejoin_after_leave: true
+consul_server: true
+consul_ui: true
+#Consul Service
+consul_Type: simple
+consul_User: root
+consul_Group: root
+consul_ExecStart: consul agent -server -ui \
+consul_advertise: 10.234.190.61
+consul_bind: 10.234.190.61
+consul_node: 10.234.190.61
+consul_ExecReload: /bin/kill -HUP $MAINPID
+consul_KillSignal: SIGINT
+consul_TimeoutStopSec: 5
+consul_Restart: on-failure
+consul_SyslogIdentifier: consul

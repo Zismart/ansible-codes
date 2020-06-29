@@ -1,0 +1,26 @@
+# Consul systemd service unit file
+[Unit]
+Description=Consul Service Discovery Agent
+Documentation=https://www.consul.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type={{ consul_Type }}
+User={{ consul_User }}
+Group={{ consul_Group }}
+ExecStart={{ installation_dir }}{{consul_ExecStart}}
+	-advertise={{ consul_advertise }} \
+	-bind={{ consul_bind }} \
+	-node={{ consul_node }} \
+    -data-dir={{ consul_data_dir }} \
+	-config-dir={{ consul_config_dir }}
+
+ExecReload={{ consul_ExecReload }}
+KillSignal={{ consul_KillSignal }}
+TimeoutStopSec={{ consul_TimeoutStopSec }}
+Restart={{ consul_Restart }}
+SyslogIdentifier={{ consul_SyslogIdentifier }}
+
+[Install]
+WantedBy=multi-user.target

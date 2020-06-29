@@ -1,0 +1,14 @@
+---
+- hosts: all
+  become: true
+  gather_facts: No
+  tasks:
+    - name: Disable SELinux
+      selinux:
+       state: disabled
+
+    - name: Stop and disable firewalld
+      service:
+       name: firewalld
+       state: stopped
+       enabled: False

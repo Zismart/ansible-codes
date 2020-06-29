@@ -1,0 +1,20 @@
+[Unit]
+Description=Nomad
+Documentation=https://nomadproject.io/docs/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecReload={{ nomad_ExecReload }}
+ExecStart={{nomad_service_execstart}} {{ nomad_config_dir }}
+KillMode={{ nomad_KillMode }}
+KillSignal={{ nomad_KillSignal }}
+LimitNOFILE={{ nomad_LimitNOFILE }}
+LimitNPROC={{ nomad_LimitNPROC }}
+Restart={{ nomad_Restart }}
+RestartSec={{nomad_restart_sec}}
+StartLimitBurst={{ nomad_StartLimitBurst }}
+TasksMax={{ nomad_TasksMax }}
+
+[Install]
+WantedBy=multi-user.target

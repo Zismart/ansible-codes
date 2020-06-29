@@ -1,0 +1,14 @@
+#These two lines are example of running fabio with HTTPS certificates
+#proxy.cs = cs=lb;type=file;cert=/opt/fabio/certs.d/mydomain_com.ca-bundle.crt;key=/opt/fabio/certs.d/mydomain_com.key
+#proxy.addr = :443;cs=lb;tlsmin=tls11;tlsmax=tls12;tlsciphers="0xc02f,0x9f,0xc030,0xc028,0xc014,0x6b,0x39,0x009d,0x0035",#             :80
+proxy.addr = :{{ fabio_proxy_addr }}
+proxy.header.tls = {{ fabio_proxyheader_tls }}
+proxy.header.tls.value = "{{ fabio_proxy_header_tls_value }}"
+ui.addr = {{ fabio_ui_addr }}
+ui.access = {{ fabio_ui_access }}
+runtime.gogc = {{ fabio_runtime_gogc }}
+log.access.target = {{ fabio_log_access_target }}
+log.access.format =  - - [] ""   ".Referer" ".User-Agent" "" "" "" ""
+log.access.level = {{ fabio_log_access_level }}
+registry.consul.addr = {{ fabio_registry_consul_addr }}
+proxy.maxconn = {{ fabio_proxy_maxconn }}

@@ -1,0 +1,97 @@
+---
+- hosts: all
+  become: true
+  gather_facts: No
+  vars_files:
+    - ./vars.yml
+  tasks:
+    - name: Extract vault to /usr/local/bin
+      unarchive:
+        src: "{{ local_dir }}source_zip/vault/{{ vault_version }}"
+        dest: "{{ installation_dir }}"
+        owner: root
+        group: root
+        mode: 0777
+        
+       
+    - name: Enable autocompletion 1
+      shell: "{{ installation_dir }}vault -autocomplete-install"
+
+      
+    - name: Enable autocompletion 2
+      shell: "complete -C {{ installation_dir }}vault vault"
+      args:
+        executable: /usr/bin/bash
+        
+        
+        
+    - name: Creates config directory for Vault
+      file:
+         path: "{{ vault_config_dir }}"
+         state: directory
+         owner: root
+         group: root
+         mode: 0700
+         recurse: yes
+         
+    - name: Creates data directory for Vault
+      file:
+         path: "{{ vault_data_dir }}"
+         state: directory
+         owner: root
+         group: root
+         mode: 0700
+         recurse: yes
+         
+    - name: Vault Service
+      template:
+        src: "{{ local_dir }}service/vault/vault.service.j2"
+        dest: "{{ service_dir }}vault.service"
+        owner: root
+        group: root
+        mode: 0777
+        backup: yes   
+
+    - name: Vault Config
+      template:
+        src: "{{ local_dir }}conf/vault/config.hcl.j2"
+        dest: "{{ vault_config_dir }}config.hcl"
+        owner: root
+        group: root
+        mode: 0644 
+        
+    - name: Daemon Reload
+      systemd:
+         daemon_reload: yes        
+        
+    - name: Start Vault
+      service:
+         name: vault
+         enabled: true
+         state: started
+           
+      
+    - name: Delete data before start using
+      file:
+        path: /var/lib/vault/data/
+        state: absent 
+        
+        
+    - name: Export VAULT_ADDR environment variable before initialize Vault server.
+      shell: export VAULT_ADDR='http://{{ vault_ip }}:8200'
+      become: yes
+      args:
+        executable: /usr/bin/bash
+        
+        
+    - name: Export VAULT_ADDR environment variable before initialize Vault server.2
+      shell: echo "export VAULT_ADDR=http://{{ vault_ip }}:8200" >> ~/.bashrc
+      args:
+        executable: /usr/bin/bash
+        
+    - name: Start initialization with the default
+      shell: source /root/.bashrc && /usr/local/bin/vault operator init > /etc/vault/init.file
+         
+         
+
+        

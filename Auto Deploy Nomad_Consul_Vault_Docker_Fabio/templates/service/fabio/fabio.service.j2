@@ -1,0 +1,45 @@
+[Unit]
+Description=Fabio Proxy
+After=syslog.target
+After=network.target
+ 
+[Service]
+LimitMEMLOCK={{ fabio_LimitMEMLOCK }}
+LimitNOFILE={{ fabio_LimitNOFILE }}
+ 
+Type={{ fabio_Type }}
+WorkingDirectory={{ fabio_WorkingDirectory }}
+Restart={{ fabio_Restart }}
+ExecStart={{ fabio_ExecStart }}
+ 
+# Log to syslog with identifier for syslog to process
+StandardOutput={{ fabio_StandardOutput }}
+StandardError={{ fabio_StandardError }}
+SyslogIdentifier={{ fabio_SyslogIdentifier }}
+ 
+# No need that fabio messes with /dev
+PrivateDevices={{ fabio_PrivateDevices }}
+ 
+# Dedicated /tmp
+PrivateTmp={{ fabio_PrivateTmp }}
+ 
+# Make /usr, /boot, /etc read only
+ProtectSystem={{ fabio_ProtectSystem }}
+ 
+# /home is not accessible at all
+ProtectHome={{ fabio_ProtectHome }}
+ 
+# You will have to run “setcap ‘cap_net_bind_service=+ep’ /opt/fabio/bin/fabio”
+# to be able to bind ports under 1024. This directive allows it to happen:
+AmbientCapabilities={{ fabio_AmbientCapabilities }}
+ 
+# Only ipv4, ipv6, unix socket and netlink networking is possible
+# Netlink is necessary so that fabio can list available IPs on startup
+RestrictAddressFamilies={{ fabio_RestrictAddressFamilies }}
+ 
+# Unprivileged user
+User={{ fabio_User }}
+Group={{ fabio_Group }}
+ 
+[Install]
+WantedBy=multi-user.target

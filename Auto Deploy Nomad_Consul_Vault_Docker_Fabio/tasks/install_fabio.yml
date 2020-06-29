@@ -1,0 +1,57 @@
+---
+- hosts: all
+  become: true
+  gather_facts: No
+  vars_files:
+    - ./vars.yml
+  tasks:
+    - name: Add user fabio primary group of 'root'
+      user:
+        name: fabio
+        group: root
+  
+    - name: Creates directory for Fabio
+      file:
+         path: "{{ fabio_opt_dir }}"
+         state: directory
+         owner: fabio
+         group: root
+         mode: 0777
+         recurse: yes
+  
+    - name: Extract Fabio to /opt/fabio/bin/
+      unarchive:
+        src: "{{ local_dir }}source_zip/fabio/{{ fabio_version }}"
+        dest: "{{ fabio_opt_dir }}"
+        owner: fabio
+        group: root
+        mode: 0777
+  
+    - name: Copy Template Fabio Config
+      template:
+        src: "{{ local_dir }}conf/fabio/fabio.properties.j2"
+        dest: "{{ fabio_conf_dir }}fabio.properties"
+        owner: fabio
+        group: root
+        mode: 0644
+        
+    - name: Copy Template Fabio Services
+      template:
+        src: "{{ local_dir }}service/fabio/fabio.service.j2"
+        dest: "{{ service_dir }}fabio.service"
+        owner: fabio
+        group: root
+        mode: 0777
+        backup: yes  
+        
+ 
+        
+    - name: Daemon Reload
+      systemd:
+         daemon_reload: yes        
+        
+    - name: Start Fabio Services and Enable
+      service:
+         name: fabio
+         enabled: true
+         state: started

@@ -1,0 +1,78 @@
+---
+- hosts: all
+  become: true
+  gather_facts: No
+  vars_files:
+    - ./vars.yml
+  tasks:
+    - name: Extract Consul to /usr/local/bin
+      unarchive:
+        src: "{{ local_dir }}source_zip/consul/{{ consul_version }}"
+        dest: "{{ installation_dir }}"
+        owner: root
+        group: root
+        mode: 0777
+        
+    - name: Enable autocompletion 1
+      shell: "{{ installation_dir }}consul -autocomplete-install"
+
+      
+    - name: Enable autocompletion 2
+      shell: "complete -C {{ installation_dir }}consul consul"
+      args:
+        executable: /usr/bin/bash
+        
+    - name: Creates config directory for Consul
+      file:
+         path: "{{ consul_config_dir }}"
+         state: directory
+         owner: root
+         group: root
+         mode: 0775
+         recurse: yes
+         
+        
+    - name: Creates data directory for Consul
+      file:
+         path: "{{ consul_data_dir }}"
+         state: directory
+         owner: root
+         group: root
+         mode: 0775
+         recurse: yes
+         
+    - name: Copy Template Consul Service
+      template:
+        src: "{{ local_dir }}service/consul/consul.service.j2"
+        dest: "{{ service_dir }}consul.service"
+        owner: root
+        group: root
+        mode: 0777
+        backup: yes  
+        
+    - name: Consul Encrypt Key Generation
+      shell: "{{ installation_dir }}consul  keygen"
+      register: consul_encrypt_key
+        
+    - name: Copy Template Consul Config and add encrypt key to config
+      template:
+        src: "{{ local_dir }}conf/consul/config.json.j2"
+        dest: "{{ consul_config_dir }}config.json"
+        owner: root
+        group: root
+        mode: 0775 
+        
+    - name: Systemd Daemon Reload
+      systemd:
+         daemon_reload: yes        
+        
+    - name: Start Consul Service and Enable
+      service:
+         name: consul
+         enabled: true
+         state: started
+        
+        
+         
+         
+         
